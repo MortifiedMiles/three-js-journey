@@ -4,7 +4,7 @@
 ## Documentation - 
 - https://threejs.org/manual/#en/creating-a-scene
 - https://lil-gui.georgealways.com/
-## Textures, Materials & Models- 
+## Textures, Materials, & Models- 
 - https://www.poliigon.com/
 - https://3dtextures.me/
 - https://www.arroway-textures.ch/ 
