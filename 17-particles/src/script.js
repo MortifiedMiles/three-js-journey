@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import GUI from 'lil-gui'
+import { texture } from 'three/tsl'
 
 /**
  * Base
@@ -18,15 +19,72 @@ const scene = new THREE.Scene()
  * Textures
  */
 const textureLoader = new THREE.TextureLoader()
+const particleTexture = textureLoader.load('./textures/particles/10.png')
 
 /**
- * Test cube
+ * Particles
  */
-const cube = new THREE.Mesh(
-    new THREE.BoxGeometry(1, 1, 1),
-    new THREE.MeshBasicMaterial()
+// Geometry
+// const particleGeometry = new THREE.SphereGeometry(1, 32, 32)
+// const particleGeometry = new THREE.BufferGeometry()
+// const points = new Float32Array(
+// [
+//     1, 0, 1,
+//     1, 0, -1,
+//     -1, 0, 1,
+//     -1, 0, -1, 
+//     0, 1, 0,
+// ])
+// const indices = [
+//     0, 1, 2,
+//     2, 3, 0,
+//     0, 1, 4
+// ]
+// particleGeometry.setIndex( indices )
+// particleGeometry.setAttribute( 'position',
+//     new THREE.BufferAttribute(
+//         points, 3
+//     )
+// )
+const particleGeometry = new THREE.BufferGeometry()
+const count = 10000
+const positions = new Float32Array(count * 3)
+
+const colors = new Float32Array(count * 3)
+
+for(let i = 0; i < count * 3; i++)
+{
+    positions[i] = (Math.random() - 0.5) * 10
+    colors[i] = Math.random()
+}
+
+particleGeometry.setAttribute(
+    'position',
+    new THREE.BufferAttribute(positions, 3)
 )
-scene.add(cube)
+
+particleGeometry.setAttribute(
+    'color',
+    new THREE.BufferAttribute(colors, 3)
+)
+
+// Material
+const particleMaterial = new THREE.PointsMaterial({
+    size: 0.1,
+    sizeAttenuation: true, // size is dependent on proximity to camera
+    // color: new THREE.Color('#ff88cc'),
+    alphaMap: particleTexture,
+    transparent: true,
+    // alphaTest: 0.001
+    // depthTest: false // particles even on the other side of objects will be drawn over them
+    depthWrite: false, // almost flawless, but there may be bugs in strange edge cases
+    blending: THREE.AdditiveBlending, // adds all of the colors on the same pixel, impacts the performance
+    vertexColors: true
+})
+
+// Points
+const particles = new THREE.Points(particleGeometry, particleMaterial)
+scene.add(particles)
 
 /**
  * Sizes
@@ -81,6 +139,18 @@ const tick = () =>
 {
     const elapsedTime = clock.getElapsedTime()
 
+    // Update particles
+    // particles.rotation.y = - elapsedTime * 0.2
+    for(let i = 0; i < count; i ++)
+    {
+        const i3 = i * 3
+        
+        const x = particleGeometry.attributes.position.array[i3]
+        const z = particleGeometry.attributes.position.array[i3 +2]
+        particleGeometry.attributes.position.array[i3 + 1] = Math.sin(elapsedTime + x) + Math.sin(elapsedTime + z)
+    }
+
+    particleGeometry.attributes.position.needsUpdate = true
     // Update controls
     controls.update()
 
