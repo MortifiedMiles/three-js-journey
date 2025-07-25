@@ -8,11 +8,16 @@
     "build": "vite build"
   },
   "devDependencies": {
-    "vite": "^6.2.2",
+    "vite": "^6.3.5",
     "vite-plugin-restart": "^0.4.2"
   },
   "dependencies": {
     "lil-gui": "^0.20.0",
     "three": "^0.174.0"
-  }
+  },
+  "description": "## Setup Download [Node.js](https://nodejs.org/en/download/). Run this followed commands:",
+  "main": "vite.config.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }

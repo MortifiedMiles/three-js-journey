@@ -1,5 +1,7 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
 import GUI from 'lil-gui'
 
 /**
@@ -13,6 +15,36 @@ const canvas = document.querySelector('canvas.webgl')
 
 // Scene
 const scene = new THREE.Scene()
+
+/**
+ *  Models
+ */
+const dracoLoader = new DRACOLoader()
+dracoLoader.setDecoderPath('/draco/')
+
+const gltfLoader = new GLTFLoader()
+gltfLoader.setDRACOLoader(dracoLoader)
+
+let mixer = null
+
+gltfLoader.load(
+    '/models/Fox/glTF/Fox.gltf',
+    (gltf) =>
+    {
+        // const children = [...gltf.scene.children]
+        // for(const child of children)
+        // {
+        //     scene.add(child)
+        // }
+        mixer = new THREE.AnimationMixer(gltf.scene)
+        const action = mixer.clipAction(gltf.animations[2])
+
+        action.play()
+
+        gltf.scene.scale.set(0.025, 0.025, 0.025)
+        scene.add(gltf.scene)
+    }
+)
 
 /**
  * Floor
@@ -105,6 +137,12 @@ const tick = () =>
     const deltaTime = elapsedTime - previousTime
     previousTime = elapsedTime
 
+    if(mixer !== null)
+    {
+        // Update mixer
+        mixer.update(deltaTime)
+    }
+    
     // Update controls
     controls.update()
 
@@ -116,3 +154,10 @@ const tick = () =>
 }
 
 tick()
+
+// The OS will try to hide extensions, but the code editor will not
+// Draco files are incredibly light, but require more loading ahead of time
+// When loading a lot of larger files, draco compression can be increidblu useful
+// huge geometries may freeze your computer for a split second when loading the file
+// is the draco loading time shorter than the regular file load time?
+
